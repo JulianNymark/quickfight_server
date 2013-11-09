@@ -14,9 +14,9 @@ function server.init( arg )
 	locX = 100
 	locY = 100
 
-	-- set fps values
-	fps = 60
-	fps_max = 1/60
+	-- set tickrate values
+	tickrate = 100
+	tickrate_max = 1/tickrate
 end
 
 function server.update( dt )
@@ -44,13 +44,11 @@ while state == "running" do
 	
 	local line = ""
 	while line ~= "exit" do
-		-- fps timer start
-		local fps_start = socket.gettime()
+		-- tickrate timer start
+		local tickrate_start = socket.gettime()
 		
 		-- receive the line
-		print("receive()")
 		local line, err = client:receive()
-		print("received: " .. line)
 		local l = split(line, ",")
 		local time = socket.gettime()*1000
 		--locX = l[1] + 10 * math.cos(time/100)
@@ -58,22 +56,20 @@ while state == "running" do
 		locX = l[1] + 100 * math.cos(time/1000)
 		locY = l[2] + 100 * math.sin(time/1000)
 		
-		print("send()")
 		client:send("".. locX .. ",".. locY .."\n")
 
-		local fps_stop = socket.gettime()
-		local frame_time = fps_stop - fps_start
+		local tickrate_stop = socket.gettime()
+		local frame_time = tickrate_stop - tickrate_start
 		
 		-- sleep extra time...
-		if (frame_time < fps_max) then
-			sleeptime = fps_max - frame_time
+		if (frame_time < tickrate_max) then
+			sleeptime = tickrate_max - frame_time
 			sleep(sleeptime)
 		end
 
-		local fps_stop = socket.gettime()
-		local frame_time = fps_stop - fps_start
-		print("frame_time: ".. frame_time)
-		print("FPS: ".. 1/frame_time)
+		local tickrate_stop = socket.gettime()
+		local frame_time = tickrate_stop - tickrate_start
+		--print("TICKRATE: ".. 1/frame_time)
 	end
 	
 	-- done with client, close the object
